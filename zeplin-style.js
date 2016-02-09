@@ -30,6 +30,8 @@ var Template = (function() {
         '</div>' +
         '</div>';
 
+	var textLayer = $('#textLayerInfo');
+
     var elements = {
         width: $('#layerWidth'),
         height: $('#layerHeight'),
@@ -45,7 +47,7 @@ var Template = (function() {
         backgroundColor: $('#layerFillContainer'),
         border: $('#layerBorders'),
         boxSizing: $('#layerBorders .borderPosition'),
-        boxShadow: $('#layerShadowContainer')
+        shadow: $('#layerShadowContainer')
     };
 
     var _prefix = {
@@ -73,10 +75,11 @@ var Template = (function() {
 
             if(properties.hasOwnProperty(prop)) {
                 for(var j = 0; j < _prefix.vendors.length; j++) {
-                    properties['-' + _prefix.vendors[j] + '-' + prop] = value;
+                	console.log(prop);
+                    properties['-' + _prefix.vendors[j] + '-' + prop] = properties[prop];
                 }
 
-                properties[prop] = value;
+                // properties[prop] = properties[prop];
 
             }
         }
@@ -200,21 +203,26 @@ var Template = (function() {
                 break;
             }
 
-            case 'boxShadow': {
-                var $boxShadow = elements.boxShadow;
-                var boxShadow = {};
+            case 'shadow': {
+                var $shadow = elements.shadow;
+                var shadow = {};
 
-                boxShadow.type = $boxShadow.find('.shadowType').html();
-                boxShadow.x = $boxShadow.find('.shadowOffsetX').html();
-                boxShadow.y = $boxShadow.find('.shadowOffsetY').html();
-                boxShadow.blur = $boxShadow.find('.shadowBlurRadius').html();
-                boxShadow.spread = $boxShadow.find('.shadowSpread').html();
-                boxShadow.color = $boxShadow.find('.colorValue').html();
+                shadow.type = $shadow.find('.shadowType').html();
+                shadow.x = $shadow.find('.shadowOffsetX').html();
+                shadow.y = $shadow.find('.shadowOffsetY').html();
+                shadow.blur = $shadow.find('.shadowBlurRadius').html();
+                shadow.spread = $shadow.find('.shadowSpread').html();
+                shadow.color = $shadow.find('.colorValue').html();
 
-                properties[dashedProperty] = boxShadow.x + ' ' + boxShadow.y + ' ' + boxShadow.blur + ' ' + boxShadow.spread + ' ' + boxShadow.color;
-                if(boxShadow.type !== 'outer') {
-                    properties[dashedProperty] = 'inner ' + properties[dashedProperty];
-                }
+            	if(textLayer.is(':visible')) { // it is text shadow
+					properties['text-shadow'] = shadow.x + ' ' + shadow.y + ' ' + shadow.blur + ' ' + shadow.color;
+            	} else { // it is box shadow
+					properties['box-shadow'] = shadow.x + ' ' + shadow.y + ' ' + shadow.blur + ' ' + shadow.spread + ' ' + shadow.color;
+	                if(shadow.type !== 'outer') {
+	                    properties['box-shadow'] = 'inner ' + properties['box-shadow'];
+	                }
+            	}
+
                 break;
             }
             // TODO not implemented yet

@@ -33,7 +33,7 @@ var Template = (function() {
     var elements = {
         width: $('#layerWidth'),
         height: $('#layerHeight'),
-        opacity: $('#opacity'),
+        opacity: $('#layerOpacity'),
         radius: $('#layerRadius'),
         rotation: $('#layerRotation'),
         backgroundBlendMode: $('#layerBlendMode'),
@@ -70,6 +70,7 @@ var Template = (function() {
     function prefixProperties() {
         for(var i = 0; i < _prefix.elements.length; i++) {
             var prop = _prefix.elements[i];
+
             if(properties.hasOwnProperty(prop)) {
                 for(var j = 0; j < _prefix.vendors.length; j++) {
                     properties['-' + _prefix.vendors[j] + '-' + prop] = value;
@@ -118,10 +119,33 @@ var Template = (function() {
             }
             case 'color':
             case 'backgroundColor': {
-                var $color = elements[prop].find('.colorValue');
-                if($color.length && $color.is(':visible')) {
-                    properties[dashedProperty] = $color.html();
-                }
+            	var isGradient = elements[prop].find('.gradient').length !== 0;
+
+            	if(isGradient) {
+            		dashedProperty = 'background-image';
+            		var values = [];
+            		var data = {};
+
+            		elements[prop].find('.colorValue').each(function(i, el) {
+        				if(i === 0) {
+    						data.top = $(el).text();
+        				} else {
+							data.bottom = $(el).text();
+        				}
+            		});
+
+        			values.push('-webkit-linear-gradient(top, '+data.top+',' + data.bottom + ')');
+        			values.push('-moz-linear-gradient(top, '+data.top+',' + data.bottom + ')');
+        			values.push('-o-linear-gradient(top, '+data.top+',' + data.bottom + ')');
+        			values.push('linear-gradient(to bottom, '+data.top+',' + data.bottom + ')');
+        			properties[dashedProperty] = values;
+
+            	} else {
+            		var $color = elements[prop].find('.colorValue');
+	                if($color.length && $color.is(':visible')) {
+	                    properties[dashedProperty] = $color.html();
+	                }
+            	}
                 break;
             }
             case 'opacity': {
@@ -187,7 +211,7 @@ var Template = (function() {
                 boxShadow.spread = $boxShadow.find('.shadowSpread').html();
                 boxShadow.color = $boxShadow.find('.colorValue').html();
 
-                properties[dashedProperty] = boxShadow.x + ' ' + boxShadow.y + ' ' + boxShadow.blur + ' ' + boxShadow.spread;
+                properties[dashedProperty] = boxShadow.x + ' ' + boxShadow.y + ' ' + boxShadow.blur + ' ' + boxShadow.spread + ' ' + boxShadow.color;
                 if(boxShadow.type !== 'outer') {
                     properties[dashedProperty] = 'inner ' + properties[dashedProperty];
                 }
@@ -221,7 +245,14 @@ var Template = (function() {
         var htmlList = '';
         for(var prop in properties) {
             if(properties.hasOwnProperty(prop)) {
-                htmlList += '<li>' + prop + ': ' + properties[prop] + ';</li>';
+            	console.log(typeof properties[prop]);
+            	if(Object.prototype.toString.call(properties[prop]) === '[object Array]') {
+            		for(var i = 0; i < properties[prop].length; i++) {
+        				htmlList += '<li>' + prop + ': ' + properties[prop][i] + ';</li>';
+            		}
+            	} else {
+            		htmlList += '<li>' + prop + ': ' + properties[prop] + ';</li>';
+            	}
             }
         }
 

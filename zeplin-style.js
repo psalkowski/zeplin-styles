@@ -75,12 +75,8 @@ var Template = (function() {
 
             if(properties.hasOwnProperty(prop)) {
                 for(var j = 0; j < _prefix.vendors.length; j++) {
-                	console.log(prop);
                     properties['-' + _prefix.vendors[j] + '-' + prop] = properties[prop];
                 }
-
-                // properties[prop] = properties[prop];
-
             }
         }
     }
@@ -219,7 +215,7 @@ var Template = (function() {
             	} else { // it is box shadow
 					properties['box-shadow'] = shadow.x + ' ' + shadow.y + ' ' + shadow.blur + ' ' + shadow.spread + ' ' + shadow.color;
 	                if(shadow.type !== 'outer') {
-	                    properties['box-shadow'] = 'inner ' + properties['box-shadow'];
+	                    properties['box-shadow'] = 'inset ' + properties['box-shadow'];
 	                }
             	}
 
